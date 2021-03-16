@@ -116,16 +116,6 @@ export function includesLabels(
   );
 }
 
-function getPriceFromString(priceString: string, euroFormat: boolean): number {
-  return Number.parseFloat(
-    priceString
-      .replace(/\\/g, '')
-      .replace(euroFormat ? /\./g : /,/g, '')
-      .match(/\d+/g)!
-      .join('.')
-  );
-}
-
 export async function getPrice(
   page: Page,
   query: Pricing,
@@ -135,10 +125,16 @@ export async function getPrice(
   const priceString = await extractPageContents(page, selector);
 
   if (priceString) {
-    const priceSeparator = query.euroFormat ? /\./g : /,/g;
+    const thousandsSeparator =
+      priceString.search(/\d+\.\d{3}|\d+,\d{2}$/) > -1 ? /\./g : /,/g;
     const price = Number.parseFloat(
-      priceString.replace(priceSeparator, '').match(/\d+/g)!.join('.')
+      priceString
+        .replace(/\\/g, '')
+        .replace(thousandsSeparator, '')
+        .match(/\d+/g)!
+        .join('.')
     );
+
     logger.debug('received price', price);
     return price;
   }
