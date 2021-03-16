@@ -116,6 +116,16 @@ export function includesLabels(
   );
 }
 
+function getPriceFromString(priceString: string, euroFormat: boolean): number {
+  return Number.parseFloat(
+    priceString
+      .replace(/\\/g, '')
+      .replace(euroFormat ? /\./g : /,/g, '')
+      .match(/\d+/g)!
+      .join('.')
+  );
+}
+
 export async function getPrice(
   page: Page,
   query: Pricing,
